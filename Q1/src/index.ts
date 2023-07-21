@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { authenticate } from "./auth/authentication";
 
 dotenv.config();
@@ -12,6 +13,9 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware to parse JSON data
 app.use(express.json());
+
+// Enable CORS
+app.use(cors());
 
 // Home route to test the server
 app.get("/", authenticate, (req, res) => {
