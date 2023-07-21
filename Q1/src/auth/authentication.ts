@@ -1,23 +1,26 @@
-import express, { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import axios from "axios";
+import dotenv from "dotenv";
 
-// AuthEndpoint should be moved to a .env file, but for the sake of simplicity, I'm keeping it here
-const AuthEndpoint = "http://20.244.56.144/train/auth";
+dotenv.config();
+
+// AuthEndpoint (The Endpoint is in .env file, following the best practices)
+const AuthEndpoint = process.env.Auth_Endpoint || "";
 
 /**
  * Get access token from the {AuthEndpoint}
  * @returns {Promise<string>} Access token
+ * @throws {Error} Failed to get access token
  */
 async function getAccessToken(): Promise<string> {
   try {
     const response = await axios.post<{ access_token: string }>(`${AuthEndpoint}`, {
-      // These credentials should be moved to a .env file, but for the sake of simplicity, I'm hardcoding them here
       companyName: "DS Train Central",
       ownerName: "Divyanshu Shekhar",
       ownerEmail: "20051238@kiit.ac.in",
       rollNo: "20051238",
-      clientID: "10341f5f-4cb7-44e8-a4fe-14aec897e15c",
-      clientSecret: "bpTqWPUlWAcidRlu",
+      clientID: process.env.ClientID || "ClientID",
+      clientSecret: process.env.ClientSecret || "ClientSecret",
     });
 
     console.log("Access token received. ", response.data.access_token);
@@ -27,7 +30,15 @@ async function getAccessToken(): Promise<string> {
   }
 }
 
-// Middleware to handle authentication
+/**
+ * Authenticate the request
+ * @param {Request} req - The request object
+ * @param {Response} res - The response object
+ * @param {NextFunction} next - The next function
+ * @returns {Promise<void>} Nothing
+ * @throws {Error} Authentication failed
+ * @description This function authenticates the request by getting the access token from the {AuthEndpoint} and setting the authorization header in the request.
+ */
 async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const accessToken = await getAccessToken();

@@ -1,5 +1,11 @@
 import express from "express";
+import dotenv from "dotenv";
 import { authenticate } from "./auth/authentication";
+
+dotenv.config();
+
+// Routes
+import trainRoutes from "./routes/trains";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,6 +17,11 @@ app.use(express.json());
 app.get("/", authenticate, (req, res) => {
   res.send("Hello World!");
 });
+
+// Trains routes
+// All trains routes are prefixed with /trains
+// To get all trains in sorted order, send a GET request to /trains/all
+app.use("/trains", trainRoutes);
 
 // Start the server
 app.listen(PORT, () => {
